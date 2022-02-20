@@ -699,14 +699,52 @@ gcv_image_split(GCVImage *image)
  *
  * Since: 1.0.4
  */
-GCVImage *gcv_image_median_blur(GCVImage *image)
+GCVImage *gcv_image_median_blur(GCVImage *image,
+                                gint ksize,
+                                GError **error)
 {
   auto cv_image = gcv_matrix_get_raw(GCV_MATRIX(image));
   auto cv_converted_image = std::make_shared<cv::Mat>();
 
-  // TODO: * Use the arguments instead of static number.
-  //       * Change blur instead of medianBlur.
-  cv::medianBlur(*cv_image, *cv_converted_image, 3);
+  if (ksize % 2 == 0 || ksize < 1) {
+    g_set_error(error,
+                GCV_IMAGE_ERROR,
+                GCV_IMAGE_ERROR_FILTER,
+                "ksize must be odd and greater than 1");
+    return NULL;
+  }
+
+  cv::medianBlur(*cv_image, *cv_converted_image, ksize);
+
+  return gcv_image_new_raw(&cv_converted_image);
+}
+
+/**
+ * gcv_image_blur:
+ * @image: A #GCVImage.
+ * @ksize: A #GCVSize blurring kernel size.
+ * @anchor: A #GCVPoint anchor point; default value Point(-1,-1) means that the anchor is at the kernel center.
+ * @border_type: A #GInt border mode used to extrapolate pixels outside of the image, see BorderTypes. BORDER_WRAP is not supported.
+ *
+ * It effects blur image. The converted image is returned as
+ * a new image.
+ *
+ * Returns: (transfer full): A converted #GCVImage.
+ *
+ * Since: 1.0.4
+ */
+GCVImage *gcv_image_blur(GCVImage *image,
+                         GCVSize *ksize,
+                         GCVPoint *anchor,
+                         gint border_type,
+                         GError **error)
+{
+  auto cv_image = gcv_matrix_get_raw(GCV_MATRIX(image));
+  auto cv_ksize = gcv_size_get_raw(ksize);
+  auto cv_point = gcv_point_get_raw(anchor);
+  auto cv_converted_image = std::make_shared<cv::Mat>();
+
+  cv::blur(*cv_image, *cv_converted_image, *cv_ksize, *cv_point, border_type);
 
   return gcv_image_new_raw(&cv_converted_image);
 }

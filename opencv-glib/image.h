@@ -231,6 +231,13 @@ gcv_image_abs_diff(GCVImage *image,
 
 GList *gcv_image_split(GCVImage *image);
 
-GCVImage *gcv_image_median_blur(GCVImage *image);
+GCVImage *gcv_image_median_blur(GCVImage *image,
+                                gint ksize,
+                                GError **error);
 
+GCVImage *gcv_image_blur(GCVImage *image,
+                                GCVSize *ksize,
+                                GCVPoint *anchor,
+                                gint border_type,
+                                GError **error);
 G_END_DECLS

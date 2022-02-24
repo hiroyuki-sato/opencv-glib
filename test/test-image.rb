@@ -339,5 +339,11 @@ class TestImage < Test::Unit::TestCase
                    ],
                    splitted_image_data)
     end
+
+    def test_median_blur
+      blure_image = @image.median_blur(7)
+      assert_not_equal(@image.bytes.to_s,
+                       blur_image.bytes.to_s)
+    end
   end
 end

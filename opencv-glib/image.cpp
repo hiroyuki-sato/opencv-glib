@@ -723,8 +723,9 @@ GCVImage *gcv_image_median_blur(GCVImage *image,
  * gcv_image_blur:
  * @image: A #GCVImage.
  * @ksize: A #GCVSize blurring kernel size.
- * @anchor: A #GCVPoint anchor point; default value Point(-1,-1) means that the anchor is at the kernel center.
- * @border_type: A #GInt border mode used to extrapolate pixels outside of the image, see BorderTypes. BORDER_WRAP is not supported.
+ * @anchor: (nullable): A #GCVPoint anchor point; default value Point(-1,-1) means that the anchor is at the kernel center.
+ * @border_type: (nullable): A #GInt border mode used to extrapolate pixels outside of the image, see BorderTypes. BORDER_WRAP is not supported.
+ * @error: (nullable): Return locatipcn for a #GError or %NULL.
  *
  * It effects blur image. The converted image is returned as
  * a new image.
@@ -744,7 +745,11 @@ GCVImage *gcv_image_blur(GCVImage *image,
   auto cv_point = gcv_point_get_raw(anchor);
   auto cv_converted_image = std::make_shared<cv::Mat>();
 
-  cv::blur(*cv_image, *cv_converted_image, *cv_ksize, *cv_point, border_type);
+  if ( cv_point == NULL ) {
+    cv::blur(*cv_image, *cv_converted_image, *cv_ksize);
+  } else {
+    cv::blur(*cv_image, *cv_converted_image, *cv_ksize, *cv_point, border_type);
+  }
 
   return gcv_image_new_raw(&cv_converted_image);
 }

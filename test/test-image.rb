@@ -341,9 +341,18 @@ class TestImage < Test::Unit::TestCase
     end
 
     def test_median_blur
-      blure_image = @image.median_blur(7)
+      blur_image = @image.median_blur(7)
       assert_not_equal(@image.bytes.to_s,
                        blur_image.bytes.to_s)
+    end
+
+    def test_median_blur_invalid_argument
+      # ksize must be odd and greater than 1
+      [-1,0,2].each do |n|
+        assert_raise(CV::ImageError::Filter) do
+          @image.median_blur(n)
+        end
+      end
     end
   end
 end
